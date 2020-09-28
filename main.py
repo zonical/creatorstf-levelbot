@@ -4,6 +4,7 @@ from discord.utils import get
 import sys
 import os
 import json
+import random
 from datetime import datetime
 
 currentdir = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +29,40 @@ class CreatorsTFLevelBot(commands.Cog):
             await person.add_roles(role)
             await person.send("You have gotten the role Veteran on the Creators.TF Discord. Your new permissions include: \n```\n-\tSending images and videos everywhere.```")
 
+    #Update the status of the bot with the amount of files we're looking over.
+    async def UpdateStatus(self):
+        randomNumber = random.randint(0, 2)
+        print(randomNumber)
+
+        #Show the number of people with a file in the system.
+        if randomNumber == 0:
+            number = len(os.listdir(currentdir + "\\users"))
+
+            activity = discord.Activity(name=f'over {number} peoples scores...', 
+            type=discord.ActivityType.watching)
+            await bot.change_presence(activity=activity)
+        #Show the number of people with the Mercenary role.
+        elif randomNumber == 1:
+            creatorsTFGuild = bot.get_guild(644801566234378240)
+
+            role = get(creatorsTFGuild.roles, name="Mercenary")
+            numofmembers_WithMerc = len(role.members)
+
+            activity = discord.Activity(name=f'with {numofmembers_WithMerc} mercenaries!', 
+            type=discord.ActivityType.playing)
+            await bot.change_presence(activity=activity)
+        #Show the number of people with the Veteran role.
+        elif randomNumber == 2:
+            creatorsTFGuild = bot.get_guild(644801566234378240)
+
+            role = get(creatorsTFGuild.roles, name="Veteran")
+            numofmembers_WithVet = len(role.members)
+
+            activity = discord.Activity(name=f'with {numofmembers_WithVet} veterans!', 
+            type=discord.ActivityType.playing)
+            await bot.change_presence(activity=activity)
+
+
     async def IncrementMessageCount(self, person):
         #Check if the JSON file exists.
         #File doesn't exist, lets create it and set a basic template.
@@ -47,24 +82,10 @@ class CreatorsTFLevelBot(commands.Cog):
         #Open JSON file.
         with open(f"{currentdir}\\users\\{person.id}.json", 'r+') as jsonFile:
             jsonObject = json.loads(jsonFile.read())
-
-            #Check to see if we have an initial time
-            if ("lastvalidtime" in jsonObject):
-                temp = jsonObject["lastvalidtime"]
-                lasttime = datetime.strptime(temp, "%H:%M:%S")
-            else:
-                #We don't have an existing time, so we'll just add a point to the message count and set the time here.
-                jsonObject["messagecount"] += 1
-                jsonObject["lastvalidtime"] = datetime.strftime(datetime.now(), "%H:%M:%S")
-                
-                #Write and close.
-                jsonFile.seek(0)
-                json.dump(jsonObject, jsonFile)
-                jsonFile.truncate()
-                jsonFile.close()
-                return
             
             #So we have a time, let's set our comparison.
+            lasttime = jsonObject["lastvalidtime"]
+            lasttime = datetime.strptime(lasttime, "%H:%M:%S")
             finalTime = datetime.now() - lasttime
 
             #Is it equal to or over a minute?
@@ -81,24 +102,36 @@ class CreatorsTFLevelBot(commands.Cog):
             json.dump(jsonObject, jsonFile)
             jsonFile.truncate()
             jsonFile.close()
+        
+        await self.UpdateStatus()
 
-    #We give credit to Alibi here for making our amazing profile pic.
     @commands.Cog.listener()
     async def on_ready(self):
-        activity = discord.Activity(name=f'the thanking game for Alibi#6534 who made the avatar!', type=discord.ActivityType.playing)
-        await bot.change_presence(activity=activity)
+        pass
 
     #When someone sends a message, process it.
     @commands.Cog.listener()
     async def on_message(self, message):
+        await bot.process_commands(message)
+        
         #Bots don't count.
         if message.author.bot == False:
             print(f'[MC] Message from {message.author.id}: {message.content}')
             #Our message needs to be greater than 3 characters.
             if len(message.content) >= 3:
                 #Our message can't be just an emoji or a mention.
-                if message.content.startswith('<') == False and message.content.endswith('>') == False:
-                    await self.IncrementMessageCount(message.author)
+                characters = [('<', '>'), (':', ':')]
+
+                for char in characters:
+                    if message.content.startswith(char[0]) == True and message.content.endswith(char[1]) == True:
+                        return
+                
+                await self.IncrementMessageCount(message.author)
+    
+    #Shows an image credit for Alibi, who made the icon.
+    @commands.command()
+    async def avatar(self, ctx):
+        await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)")
 
 bot = commands.Bot(command_prefix='c!', case_insensitive=True)
 bot.add_cog(CreatorsTFLevelBot(bot))
