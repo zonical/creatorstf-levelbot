@@ -105,7 +105,7 @@ class CreatorsTFLevelBot(commands.Cog):
     #Shows an image credit for Alibi, who made the icon.
     @commands.command()
     async def avatar(self, ctx):
-        await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)")
+        await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)```")
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
