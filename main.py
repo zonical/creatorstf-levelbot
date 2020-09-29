@@ -147,7 +147,7 @@ class CreatorsTFLevelBot(commands.Cog):
                         print(f"[MC] {member.id} has achieved perms level 2!")
                     
                     #We're giving a role?
-                    if role not None:
+                    if role != None:
                         await member.add_roles(role)
 
 try:
