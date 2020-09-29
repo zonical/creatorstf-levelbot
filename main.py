@@ -9,6 +9,11 @@ from datetime import datetime
 
 currentdir = os.path.dirname(os.path.abspath(__file__))
 
+if os.name == "nt":
+    slash = "\\"
+else:
+    slash = "/"
+
 class CreatorsTFLevelBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -36,7 +41,7 @@ class CreatorsTFLevelBot(commands.Cog):
 
         #Show the number of people with a file in the system.
         if randomNumber == 0:
-            number = len(os.listdir(currentdir + "\\users"))
+            number = len(os.listdir(currentdir + f"{slash}users"))
 
             activity = discord.Activity(name=f'over {number} peoples scores...', 
             type=discord.ActivityType.watching)
@@ -66,9 +71,9 @@ class CreatorsTFLevelBot(commands.Cog):
     async def IncrementMessageCount(self, person):
         #Check if the JSON file exists.
         #File doesn't exist, lets create it and set a basic template.
-        if (os.path.exists(f"{currentdir}\\users\\{person.id}.json") == False):
+        if (os.path.exists(f"{currentdir}{slash}users{slash}{person.id}.json") == False):
             print(f"[MC] {person}'s file doesn't exist, creating!")
-            with open(f"{currentdir}\\users\\{person.id}.json", 'w+') as jsonFile:
+            with open(f"{currentdir}{slash}users{slash}{person.id}.json", 'w+') as jsonFile:
                 message = {
                     "messagecount": 1,
                     "lastvalidtime": datetime.strftime(datetime.now(), "%H:%M:%S")
@@ -80,7 +85,7 @@ class CreatorsTFLevelBot(commands.Cog):
             return
             
         #Open JSON file.
-        with open(f"{currentdir}\\users\\{person.id}.json", 'r+') as jsonFile:
+        with open(f"{currentdir}{slash}users{slash}{person.id}.json", 'r+') as jsonFile:
             jsonObject = json.loads(jsonFile.read())
             
             #So we have a time, let's set our comparison.
