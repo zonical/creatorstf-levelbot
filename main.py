@@ -111,7 +111,7 @@ class CreatorsTFLevelBot(commands.Cog):
             jsonFile.truncate()
             jsonFile.close()
         
-        await self.UpdateStatus()
+        #await self.UpdateStatus()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -141,7 +141,9 @@ class CreatorsTFLevelBot(commands.Cog):
     async def avatar(self, ctx):
         await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)")
 
-bot = commands.Bot(command_prefix='c!', case_insensitive=True)
-bot.add_cog(CreatorsTFLevelBot(bot))
-bot.run(sys.argv[1])
-
+try:
+    bot = commands.Bot(command_prefix='c!', case_insensitive=True)
+    bot.add_cog(CreatorsTFLevelBot(bot))
+    bot.run(sys.argv[1])
+except KeyboardInterrupt:
+    quit()
