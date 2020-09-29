@@ -21,21 +21,32 @@ class CreatorsTFLevelBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    #This function handles the giving of roles.
     async def HandleRoleChecks(self, person, count):
-        if (count == 60):
-            role = get(person.guild.roles, name="Mercenary")
-            print(f"[MC] {person.id} has achieved perms level 1!")
-            await person.add_roles(role)
-            message = "You have gotten the role Mercenary on the Creators.TF Discord. Your new permissions include: \n```-\tSending images and videos everywhere except #general, and #off-topic.\n-\tChange your nickname.\n-\tEmbed Links.\n-\tUser External Emojis\n-\tAdd Reactions.```"
-            await person.send(message)
+        #Level 1: Mercenary. Required score, 30 or above.
+        if (count >= 30):
+            membersRoles = person.roles
+            mercRole = get(person.guild.roles, name="Mercenary")
 
-        elif (count == 1000):
+            #This person does NOT have the role, give it to them.
+            if mercRole not in membersRoles:
+                print(f"[MC] {person.id} has achieved perms level 1!")
+                await person.add_roles(mercRole)
+                message = "You have gotten the role Mercenary on the Creators.TF Discord. Your new permissions include: \n```-\tSending images and videos everywhere except #general, and #off-topic.\n-\tChange your nickname.\n-\tEmbed Links.\n-\tUser External Emojis\n-\tAdd Reactions.```"
+                await person.send(message)
+
+        #Level 2: Veteran. Required score, 500 or above.
+        elif (count >= 500):
+            membersRoles = person.roles
             oldrole = get(person.guild.roles, name="Mercenary")
-            role = get(person.guild.roles, name="Veteran")
-            print(f"[MC] {person.id} has achieved perms level 2!")
-            await person.remove_roles(oldrole)
-            await person.add_roles(role)
-            await person.send("You have gotten the role Veteran on the Creators.TF Discord. Your new permissions include: \n```\n-\tSending images and videos everywhere.```")
+            vetRole = get(person.guild.roles, name="Veteran")
+
+            #This person does NOT have the role, give it to them.
+            if vetRole not in membersRoles:
+                print(f"[MC] {person.id} has achieved perms level 2!")
+                await person.remove_roles(oldrole)
+                await person.add_roles(role)
+                await person.send("You have gotten the role Veteran on the Creators.TF Discord. Your new permissions include: \n```\n-\tSending images and videos everywhere.```")
 
     async def IncrementMessageCount(self, person):
         #Check if the JSON file exists.
@@ -81,7 +92,7 @@ class CreatorsTFLevelBot(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        pass
+        print("[MC] Bot started!")
 
     #When someone sends a message, process it.
     @commands.Cog.listener()
@@ -100,6 +111,7 @@ class CreatorsTFLevelBot(commands.Cog):
                     if message.content.startswith(char[0]) == True and message.content.endswith(char[1]) == True:
                         return
                 
+                #Passed the checks? Lets deal with the file side now.
                 await self.IncrementMessageCount(message.author)
     
     #Shows an image credit for Alibi, who made the icon.
@@ -107,23 +119,36 @@ class CreatorsTFLevelBot(commands.Cog):
     async def avatar(self, ctx):
         await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)```")
 
+    #This function assigns roles automatically when someone has joined the server.
     @commands.Cog.listener()
-    async def on_member_join(self, member):
-        if (os.path.exists(f"{currentdir}{slash}users{slash}{member.id}.json") == True):
-            #Open JSON file.
-            with open(f"{currentdir}{slash}users{slash}{member.id}.json", 'r+') as jsonFile:
-                jsonObject = json.loads(jsonFile.read())
+    async def on_member_update(self, before, after):
+        userId = before.id #Doesn't really matter which one we go with.
+        pendingVerificationRole = get(before.guild.roles, name="Pending Verification")
 
-                score = jsonObject["messagecount"]
+        #Now check to see if the role was in the before and not in the after.
+        if pendingVerificationRole in before.roles and pendingVerificationRole not in after.roles:
+            #Success! Let's assign the roles.
+            #Because of how AltDentifier works, we don't need to handle removing Pending Verification
+            #and also assigning the Member role for us.
+            if (os.path.exists(f"{currentdir}{slash}users{slash}{member.id}.json") == True):
+                #Open JSON file.
+                with open(f"{currentdir}{slash}users{slash}{member.id}.json", 'r+') as jsonFile:
+                    jsonObject = json.loads(jsonFile.read())
 
-                if score >= 60 and score < 1000:
-                    role = get(member.guild.roles, name="Mercenary")
-                    print(f"[MC] {member.id} has achieved perms level 1!")
-                    await member.add_roles(role)
-                elif score >= 1000:
-                    role = get(member.guild.roles, name="Veteran")
-                    print(f"[MC] {member.id} has achieved perms level 2!")
-                    await member.add_roles(role)
+                    score = jsonObject["messagecount"]
+                    role = None
+
+                    #Lets give them the roles depending on their score.
+                    if score >= 30 and score < 500:
+                        role = get(member.guild.roles, name="Mercenary")
+                        print(f"[MC] {member.id} has achieved perms level 1!")
+                    elif score >= 500:
+                        role = get(member.guild.roles, name="Veteran")
+                        print(f"[MC] {member.id} has achieved perms level 2!")
+                    
+                    #We're giving a role?
+                    if role not None:
+                        await member.add_roles(role)
 
 try:
     bot = commands.Bot(command_prefix='c!', case_insensitive=True)
