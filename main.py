@@ -123,40 +123,11 @@ class CreatorsTFLevelBot(commands.Cog):
     #This will change our status every so often to show certain statistics.
     @tasks.loop(seconds=30)
     async def StatusUpdate_Loop(self):
-        randomNumber = random.randint(0, 2)
+        number = len(os.listdir(currentdir + f"{slash}users"))
 
-        while randomNumber == self.lastRandomNumber:
-            randomNumber = random.randint(0, 2)
-
-        self.lastRandomNumber = randomNumber
-
-        #Show the total amount of users.
-        if randomNumber == 0:
-            number = len(os.listdir(currentdir + f"{slash}users"))
-
-            activity = discord.Activity(name=f'over {number} peoples scores...', 
-            type=discord.ActivityType.watching)
-            await self.bot.change_presence(activity=activity)
-        #Show the number of people with the Mercenary role.
-        elif randomNumber == 1:
-            creatorsTFGuild = self.bot.get_guild(644801566234378240)
-
-            role = get(creatorsTFGuild.roles, name="Mercenary")
-            numofmembers_WithMerc = len(role.members)
-
-            activity = discord.Activity(name=f'with {numofmembers_WithMerc} mercenaries!', 
-            type=discord.ActivityType.playing)
-            await self.bot.change_presence(activity=activity)
-        #Show the number of people with the Veteran role.
-        elif randomNumber == 2:
-            creatorsTFGuild = self.bot.get_guild(644801566234378240)
-
-            role = get(creatorsTFGuild.roles, name="Veteran")
-            numofmembers_WithVet = len(role.members)
-
-            activity = discord.Activity(name=f'with {numofmembers_WithVet} veterans!', 
-            type=discord.ActivityType.playing)
-            await self.bot.change_presence(activity=activity)
+        activity = discord.Activity(name=f'over {number} peoples scores...', 
+        type=discord.ActivityType.watching)
+        await self.bot.change_presence(activity=activity)
 
     #This function assigns roles automatically when someone has joined the server.
     @commands.Cog.listener()
