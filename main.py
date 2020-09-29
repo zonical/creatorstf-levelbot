@@ -14,6 +14,9 @@ if os.name == "nt":
 else:
     slash = "/"
 
+if not os.path.exists(currentdir + slash + "users"):
+    os.makedirs(currentdir + slash + "users")
+
 class CreatorsTFLevelBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
