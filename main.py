@@ -26,7 +26,7 @@ class CreatorsTFLevelBot(commands.Cog):
             role = get(person.guild.roles, name="Mercenary")
             print(f"[MC] {person.id} has achieved perms level 1!")
             await person.add_roles(role)
-            message = "You have gotten the role Mercenary on the Creators.TF Discord. Your new permissions include: \n```-\tSending images and videos everywhere except #general.\n-\tChange your nickname.\n-\tEmbed Links.\n-\tUser External Emojis\n-\tAdd Reactions.```"
+            message = "You have gotten the role Mercenary on the Creators.TF Discord. Your new permissions include: \n```-\tSending images and videos everywhere except #general, and #off-topic.\n-\tChange your nickname.\n-\tEmbed Links.\n-\tUser External Emojis\n-\tAdd Reactions.```"
             await person.send(message)
 
         elif (count == 1000):
@@ -36,40 +36,6 @@ class CreatorsTFLevelBot(commands.Cog):
             await person.remove_roles(oldrole)
             await person.add_roles(role)
             await person.send("You have gotten the role Veteran on the Creators.TF Discord. Your new permissions include: \n```\n-\tSending images and videos everywhere.```")
-
-    #Update the status of the bot with the amount of files we're looking over.
-    async def UpdateStatus(self):
-        randomNumber = random.randint(0, 2)
-        print(randomNumber)
-
-        #Show the number of people with a file in the system.
-        if randomNumber == 0:
-            number = len(os.listdir(currentdir + f"{slash}users"))
-
-            activity = discord.Activity(name=f'over {number} peoples scores...', 
-            type=discord.ActivityType.watching)
-            await bot.change_presence(activity=activity)
-        #Show the number of people with the Mercenary role.
-        elif randomNumber == 1:
-            creatorsTFGuild = bot.get_guild(644801566234378240)
-
-            role = get(creatorsTFGuild.roles, name="Mercenary")
-            numofmembers_WithMerc = len(role.members)
-
-            activity = discord.Activity(name=f'with {numofmembers_WithMerc} mercenaries!', 
-            type=discord.ActivityType.playing)
-            await bot.change_presence(activity=activity)
-        #Show the number of people with the Veteran role.
-        elif randomNumber == 2:
-            creatorsTFGuild = bot.get_guild(644801566234378240)
-
-            role = get(creatorsTFGuild.roles, name="Veteran")
-            numofmembers_WithVet = len(role.members)
-
-            activity = discord.Activity(name=f'with {numofmembers_WithVet} veterans!', 
-            type=discord.ActivityType.playing)
-            await bot.change_presence(activity=activity)
-
 
     async def IncrementMessageCount(self, person):
         #Check if the JSON file exists.
@@ -140,6 +106,24 @@ class CreatorsTFLevelBot(commands.Cog):
     @commands.command()
     async def avatar(self, ctx):
         await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)")
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        if (os.path.exists(f"{currentdir}{slash}users{slash}{member.id}.json") == True):
+            #Open JSON file.
+            with open(f"{currentdir}{slash}users{slash}{member.id}.json", 'r+') as jsonFile:
+                jsonObject = json.loads(jsonFile.read())
+
+                score = jsonObject["messagecount"]
+
+                if score >= 60 and score < 1000:
+                    role = get(member.guild.roles, name="Mercenary")
+                    print(f"[MC] {member.id} has achieved perms level 1!")
+                    await member.add_roles(role)
+                elif score >= 1000:
+                    role = get(member.guild.roles, name="Veteran")
+                    print(f"[MC] {member.id} has achieved perms level 2!")
+                    await member.add_roles(role)
 
 try:
     bot = commands.Bot(command_prefix='c!', case_insensitive=True)
