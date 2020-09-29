@@ -96,9 +96,7 @@ class CreatorsTFLevelBot(commands.Cog):
 
     #When someone sends a message, process it.
     @commands.Cog.listener()
-    async def on_message(self, message):
-        await bot.process_commands(message)
-        
+    async def on_message(self, message):    
         #Bots don't count.
         if message.author.bot == False:
             print(f'[MC] Message from {message.author.id}: {message.content}')
