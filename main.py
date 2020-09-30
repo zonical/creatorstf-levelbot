@@ -74,7 +74,7 @@ class CreatorsTFLevelBot(commands.Cog):
             finalTime = datetime.now() - lasttime
 
             #Is it equal to or over a minute?
-            if (finalTime.seconds/60 >= 1):
+            if (finalTime.seconds/30 >= 1):
                 #Add a point, set the last valid time to now.
                 print(f"[MC] Adding to {person.id}'s current message count...")
                 jsonObject["messagecount"] += 1
