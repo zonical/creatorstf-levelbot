@@ -23,8 +23,8 @@ class CreatorsTFLevelBot(commands.Cog):
 
     #This function handles the giving of roles.
     async def HandleRoleChecks(self, person, count):
-        #Level 1: Mercenary. Required score, 30 or above.
-        if (count >= 30):
+        #Level 1: Mercenary. Required score, 45 or above.
+        if (count >= 45):
             membersRoles = person.roles
             mercRole = get(person.guild.roles, name="Mercenary")
 
@@ -35,8 +35,8 @@ class CreatorsTFLevelBot(commands.Cog):
                 message = "You have gotten the role Mercenary on the Creators.TF Discord. Your new permissions include: \n```-\tSending images and videos everywhere except #general, and #off-topic.\n-\tChange your nickname.\n-\tEmbed Links.\n-\tUser External Emojis\n-\tAdd Reactions.```"
                 await person.send(message)
 
-        #Level 2: Veteran. Required score, 500 or above.
-        elif (count >= 500):
+        #Level 2: Veteran. Required score, 750 or above.
+        elif (count >= 750):
             membersRoles = person.roles
             oldrole = get(person.guild.roles, name="Mercenary")
             vetRole = get(person.guild.roles, name="Veteran")
@@ -149,10 +149,10 @@ class CreatorsTFLevelBot(commands.Cog):
                     role = None
 
                     #Lets give them the roles depending on their score.
-                    if score >= 30 and score < 500:
+                    if score >= 45 and score < 750:
                         role = get(member.guild.roles, name="Mercenary")
                         print(f"[MC] {member.id} has achieved perms level 1!")
-                    elif score >= 500:
+                    elif score >= 750:
                         role = get(member.guild.roles, name="Veteran")
                         print(f"[MC] {member.id} has achieved perms level 2!")
                     
