@@ -24,7 +24,8 @@ class CreatorsTFLevelBot(commands.Cog):
     #This function handles the giving of roles.
     async def HandleRoleChecks(self, person, count):
         #Level 1: Mercenary. Required score, 45 or above.
-        if (count >= 30):
+        if (count >= 30 and count < 150):
+            print(f"[MC] {person.id} is eligble for level 2!")
             membersRoles = person.roles
             mercRole = get(person.guild.roles, name="Mercenary")
 
@@ -37,6 +38,7 @@ class CreatorsTFLevelBot(commands.Cog):
 
         #Level 2: Veteran. Required score, 750 or above.
         elif (count >= 150):
+            print(f"[MC] {person.id} is eligble for level 2!")
             membersRoles = person.roles
             oldrole = get(person.guild.roles, name="Mercenary")
             vetRole = get(person.guild.roles, name="Veteran")
@@ -45,7 +47,7 @@ class CreatorsTFLevelBot(commands.Cog):
             if vetRole not in membersRoles:
                 print(f"[MC] {person.id} has achieved perms level 2!")
                 await person.remove_roles(oldrole)
-                await person.add_roles(role)
+                await person.add_roles(vetRole)
                 await person.send("You have gotten the role Veteran on the Creators.TF Discord. Your new permissions include: \n```\n-\tSending images and videos everywhere.```")
 
     async def IncrementMessageCount(self, person):
