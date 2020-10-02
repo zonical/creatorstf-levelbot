@@ -24,7 +24,7 @@ class CreatorsTFLevelBot(commands.Cog):
     #This function handles the giving of roles.
     async def HandleRoleChecks(self, person, count):
         #Level 1: Mercenary. Required score, 45 or above.
-        if (count >= 45):
+        if (count >= 30):
             membersRoles = person.roles
             mercRole = get(person.guild.roles, name="Mercenary")
 
@@ -36,7 +36,7 @@ class CreatorsTFLevelBot(commands.Cog):
                 await person.send(message)
 
         #Level 2: Veteran. Required score, 750 or above.
-        elif (count >= 750):
+        elif (count >= 150):
             membersRoles = person.roles
             oldrole = get(person.guild.roles, name="Mercenary")
             vetRole = get(person.guild.roles, name="Veteran")
@@ -74,7 +74,7 @@ class CreatorsTFLevelBot(commands.Cog):
             finalTime = datetime.now() - lasttime
 
             #Is it equal to or over a minute?
-            if (finalTime.seconds/30 >= 1):
+            if (finalTime.seconds/10 >= 1):
                 #Add a point, set the last valid time to now.
                 print(f"[MC] Adding to {person.id}'s current message count...")
                 jsonObject["messagecount"] += 1
@@ -149,10 +149,10 @@ class CreatorsTFLevelBot(commands.Cog):
                     role = None
 
                     #Lets give them the roles depending on their score.
-                    if score >= 45 and score < 750:
+                    if score >= 30 and score < 150:
                         role = get(member.guild.roles, name="Mercenary")
                         print(f"[MC] {member.id} has achieved perms level 1!")
-                    elif score >= 750:
+                    elif score >= 150:
                         role = get(member.guild.roles, name="Veteran")
                         print(f"[MC] {member.id} has achieved perms level 2!")
                     
