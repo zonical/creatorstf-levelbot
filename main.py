@@ -123,6 +123,20 @@ class CreatorsTFLevelBot(commands.Cog):
     async def avatar(self, ctx):
         await ctx.send("```The user Alibi#6534 is the one responsible for the avatar used by me! Next time you see them, go say thank you! :)```")
 
+    @commands.command()
+    async def score(self, ctx):
+        if (os.path.exists(f"{currentdir}{slash}users{slash}{ctx.author.id}.json") == True):
+            #Open JSON file.
+            with open(f"{currentdir}{slash}users{slash}{ctx.author.id}.json", 'r+') as jsonFile:
+                jsonObject = json.loads(jsonFile.read())
+
+                score = jsonObject["messagecount"]
+                howmanyTimes = round(score/150, 3)
+
+                embedMessage = discord.Embed(title="Creators.TF Utility Bot.")
+                embedMessage.add_field(name="Your score:", value=f"Your current score is {score}. That is {howmanyTimes}x the points of Veteran (150).",inline=False)
+
+                await ctx.send(embed=embedMessage)
     lastRandomNumber = -1
 
     #This will change our status every so often to show certain statistics.
