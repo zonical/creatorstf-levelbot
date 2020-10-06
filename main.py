@@ -136,7 +136,7 @@ class CreatorsTFLevelBot(commands.Cog):
                 embedMessage = discord.Embed(title="Creators.TF Utility Bot.")
                 embedMessage.add_field(name="Your score:", value=f"Your current score is {score}. That is {howmanyTimes}x the points of Veteran (150).",inline=False)
 
-                await ctx.send(embed=embedMessage)
+                await ctx.send(f"<@{ctx.author.id}>", embed=embedMessage)
     lastRandomNumber = -1
 
     #This will change our status every so often to show certain statistics.
