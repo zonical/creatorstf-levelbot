@@ -5,6 +5,7 @@ import sys
 import os
 import json
 import random
+import asyncio
 from datetime import datetime
 
 currentdir = os.path.dirname(os.path.abspath(__file__))
@@ -179,9 +180,54 @@ class CreatorsTFLevelBot(commands.Cog):
                     if role != None:
                         await member.add_roles(role)
 
+class CreatorsTFNicknameManagerBot(commands.Cog):
+    badwords = []
+    logchannelID = -1
+    def __init__(self, bot):
+        self.bot = bot
+
+        #Because github won't probably like us having tons of bad words
+        #on our repo, a private file is hosted where it grabs a list of
+        #explicit words to look out for. This is based off of our Dyno blacklist.
+        with open(currentdir + "/config/badwords.json") as file:
+            #Load into JSON, then parse:
+            jsonObj = json.load(file)
+            for word in jsonObj["words"]:
+                self.badwords.append(word)
+
+            self.logchannelID = jsonObj["logchannel"]
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("[NICK] Bot started!")
+    @commands.Cog.listener()
+    async def on_member_update(self, before : discord.Member, after : discord.Member):
+        username = before.name
+        
+        beforeNickname = before.nick
+        afterNickname = after.nick
+
+        if afterNickname:
+            #Loop through our list of bad words.
+            for word in self.badwords:
+                if word in afterNickname.lower(): #Is this bad word in our nickname?
+                    print(f"[NICK] {before} has changed their nickname to a bad word: {beforeNickname} -> {afterNickname}")
+                    #Edit nickname.
+                    await after.edit(nick=username)
+
+                    #channel = bot.get_channel(self.logchannelID)
+                    #Construct embed to send.
+                    #embedMessage = discord.Embed(title="Creators.TF Utility Bot.")
+                    #embedMessage.add_field(name="A username tried to use a blacklisted name", value=f"User: <@{before.id}",inline=False)
+                    #embedMessage.add_field(name="Before nickname:", value=f"{beforeNickname}",inline=False)
+                    #embedMessage.add_field(name="After nickname:", value=f"{afterNickname}",inline=False)
+                    #await channel.send(embed=embedMessage)
+
 try:
     bot = commands.Bot(command_prefix='c!', case_insensitive=True)
+    bot.remove_command("help")
     bot.add_cog(CreatorsTFLevelBot(bot))
+    bot.add_cog(CreatorsTFNicknameManagerBot(bot))
     bot.run(sys.argv[1])
 except KeyboardInterrupt:
     quit()
