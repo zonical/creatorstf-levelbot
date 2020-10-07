@@ -197,6 +197,8 @@ class CreatorsTFNicknameManagerBot(commands.Cog):
 
             self.logchannelID = jsonObj["logchannel"]
 
+        print("Loaded bad words: ", self.badwords)
+
     @commands.Cog.listener()
     async def on_ready(self):
         print("[NICK] Bot started!")
