@@ -180,56 +180,73 @@ class CreatorsTFLevelBot(commands.Cog):
                     if role != None:
                         await member.add_roles(role)
 
-class CreatorsTFNicknameManagerBot(commands.Cog):
-    badwords = []
-    logchannelID = -1
+class CreatorsTFCringeboardBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        #Because github won't probably like us having tons of bad words
-        #on our repo, a private file is hosted where it grabs a list of
-        #explicit words to look out for. This is based off of our Dyno blacklist.
-        with open(currentdir + "/config/badwords.json") as file:
-            #Load into JSON, then parse:
-            jsonObj = json.load(file)
-            for word in jsonObj["words"]:
-                self.badwords.append(word)
-
-            self.logchannelID = jsonObj["logchannel"]
-
-        print("Loaded bad words: ", self.badwords)
-
     @commands.Cog.listener()
     async def on_ready(self):
-        print("[NICK] Bot started!")
+        print("[CB] Bot started!")
+
+    #When someone sends a message, process it.
     @commands.Cog.listener()
-    async def on_member_update(self, before : discord.Member, after : discord.Member):
-        username = before.name
-        
-        beforeNickname = before.nick
-        afterNickname = after.nick
+    async def on_reaction_add(self, reaction : discord.Reaction, user):
+        print("[CB] Reaction added on message.")
+        if reaction.message.guild is None:
+            return
 
-        if afterNickname:
-            #Loop through our list of bad words.
-            for word in self.badwords:
-                if word in afterNickname.lower(): #Is this bad word in our nickname?
-                    print(f"[NICK] {before} has changed their nickname to a bad word: {beforeNickname} -> {afterNickname}")
-                    #Edit nickname.
-                    await after.edit(nick=username)
+        messageAuthor = reaction.message.author
+        currentGuild = reaction.message.guild
+        channel = get(currentGuild.channels, name="cringeboard")
 
-                    #channel = bot.get_channel(self.logchannelID)
-                    #Construct embed to send.
-                    #embedMessage = discord.Embed(title="Creators.TF Utility Bot.")
-                    #embedMessage.add_field(name="A username tried to use a blacklisted name", value=f"User: <@{before.id}",inline=False)
-                    #embedMessage.add_field(name="Before nickname:", value=f"{beforeNickname}",inline=False)
-                    #embedMessage.add_field(name="After nickname:", value=f"{afterNickname}",inline=False)
-                    #await channel.send(embed=embedMessage)
+        #Was the reaction added the cringe?
+        if type(reaction.emoji) == str:
+            return
+
+        if reaction.emoji.id == 648211973397413889: #Cringe emoji ID.
+            print("[CB] Cringe Reaction added on message.")
+            if messageAuthor == user:
+                return
+
+            #Over the needed amount?
+            if reaction.count >= 10:
+                embedMessage = discord.Embed(title="Cringeboard")
+
+                #Do we have an image or a file of some kind?
+                if len(reaction.message.attachments) >= 1:
+                    #We only accept pictures, and nothing else.
+                    IsAPicture = False
+
+                    TheThing = reaction.message.attachments[0].url
+                    for ext in [".jpg", ".jpeg", ".png", ".webp", ".gif"]:
+                        if TheThing.endswith(ext):
+                            IsAPicture = True
+                            break
+                    
+                    if IsAPicture == False:
+                        return
+
+                    if reaction.message.content == "":
+                        #NOTE NOTE NOTE! The discord.py documentation says we shouldn't do this, but we need a workaround to avoid a
+                        #HTTP request error in the Discord API where the value of embed field is empty.
+                        reaction.message.content = '\u200b' 
+                    #Set our image as our first attatchment.
+                    embedMessage.set_image(url=TheThing)
+
+                embedMessage.add_field(name=f"Message by {messageAuthor.nick} received 20 cringe emotes, so it was added to the Cringeboard:", value=reaction.message.content,inline=False)
+                embedMessage.add_field(name="Source:", value=f"{reaction.message.jump_url}")
+                embedMessage.set_thumbnail(url=messageAuthor.avatar_url)
+                        
+                if channel:
+                    print("[CB] Valid for the Cringeboard!")
+                    await channel.send(embed=embedMessage)
 
 try:
     bot = commands.Bot(command_prefix='c!', case_insensitive=True)
     bot.remove_command("help")
     bot.add_cog(CreatorsTFLevelBot(bot))
-    bot.add_cog(CreatorsTFNicknameManagerBot(bot))
+    bot.add_cog(CreatorsTFCringeboardBot(bot))
+
     bot.run(sys.argv[1])
 except KeyboardInterrupt:
     quit()
